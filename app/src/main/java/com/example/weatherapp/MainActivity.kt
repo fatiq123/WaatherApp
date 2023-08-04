@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.example.weatherapp.utils.Constants
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -164,9 +165,28 @@ class MainActivity : AppCompatActivity() {
                         "Latitude: ${locationResult.lastLocation?.latitude} \n Longitude: ${locationResult.lastLocation?.longitude}",
                         Toast.LENGTH_SHORT
                     ).show()
+
+                    getNetworkWeatherDetails()
                 }
             },
             Looper.myLooper()
         )
+    }
+
+
+    private fun getNetworkWeatherDetails() {
+        if (Constants.isNetworkAvailable(this)) {
+            Toast.makeText(
+                this,
+                "There is internet connection",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            Toast.makeText(
+                this,
+                "There's is no internet connection",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 }
