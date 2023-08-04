@@ -136,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         )
             .build()
 
+        /*remember this code is auto generate to grant the permission for requestLocationUpdates*/
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -153,6 +154,7 @@ class MainActivity : AppCompatActivity() {
             // for ActivityCompat#requestPermissions for more details.
             return
         }
+        /* until here */
         mFusedLocationProviderClient.requestLocationUpdates(
             locationRequest, object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
