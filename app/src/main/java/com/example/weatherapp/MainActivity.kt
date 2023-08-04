@@ -1,27 +1,40 @@
 package com.example.weatherapp
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.location.LocationRequest
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 
 
 class MainActivity : AppCompatActivity() {
 
     private val REQUEST_LOCATION_CODE = 1
+
+    private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
 
         if (!isLocationEnabled()) {
             Toast.makeText(
@@ -91,4 +104,67 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_LOCATION_CODE && grantResults.isNotEmpty()) {
+            Toast.makeText(
+                this,
+                "Permission granted",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+
+            requestLocationData()
+        } else {
+            Toast.makeText(
+                this,
+                "The permission was not granted",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+    }
+
+    private fun requestLocationData() {
+        val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            1000
+        )
+            .build()
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        mFusedLocationProviderClient.requestLocationUpdates(
+            locationRequest, object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    super.onLocationResult(locationResult)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Latitude: ${locationResult.lastLocation?.latitude} \n Longitude: ${locationResult.lastLocation?.longitude}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
+            Looper.myLooper()
+        )
+    }
 }
