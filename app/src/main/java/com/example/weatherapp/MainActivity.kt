@@ -37,7 +37,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-
 class MainActivity : AppCompatActivity() {
 
     private val REQUEST_LOCATION_CODE = 1
