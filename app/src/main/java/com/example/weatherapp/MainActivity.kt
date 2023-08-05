@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +32,10 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 
 class MainActivity : AppCompatActivity() {
@@ -169,13 +174,16 @@ class MainActivity : AppCompatActivity() {
             locationRequest, object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     super.onLocationResult(locationResult)
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Latitude: ${locationResult.lastLocation?.latitude} \n Longitude: ${locationResult.lastLocation?.longitude}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    /* Toast.makeText(
+                         this@MainActivity,
+                         "Latitude: ${locationResult.lastLocation?.latitude} \n Longitude: ${locationResult.lastLocation?.longitude}",
+                         Toast.LENGTH_SHORT
+                     ).show()*/
 
-                    getNetworkWeatherDetails(locationResult.lastLocation?.latitude!!, locationResult.lastLocation?.longitude!!)
+                    getNetworkWeatherDetails(
+                        locationResult.lastLocation?.latitude!!,
+                        locationResult.lastLocation?.longitude!!
+                    )
                 }
             },
             Looper.myLooper()
@@ -205,7 +213,32 @@ class MainActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val weather = response.body()
                         Log.d("WEATHER", weather.toString())
-                        Toast.makeText(this@MainActivity, "$weather", Toast.LENGTH_SHORT).show()
+                        /*Toast.makeText(this@MainActivity, "$weather", Toast.LENGTH_SHORT).show()*/
+
+                        for (i in weather?.weather!!.indices) {
+                            findViewById<TextView>(R.id.text_view_sunset).text =
+                                convertTime(weather.sys.sunset.toLong())
+                            findViewById<TextView>(R.id.text_view_sunrise).text =
+                                convertTime(weather.sys.sunrise.toLong())
+                            findViewById<TextView>(R.id.text_view_status).text =
+                                weather.weather[i].description
+                            findViewById<TextView>(R.id.text_view_address).text = weather.name
+                            findViewById<TextView>(R.id.text_view_address).text = weather.name
+                            findViewById<TextView>(R.id.text_view_temp_max).text =
+                                weather.main.temp_max.toString() + " max"
+                            findViewById<TextView>(R.id.text_view_temp_min).text =
+                                weather.main.temp_max.toString() + " min"
+                            findViewById<TextView>(R.id.text_view_temp).text =
+                                weather.main.temp.toString() + "°C"
+                            findViewById<TextView>(R.id.text_view_humidity).text =
+                                weather.main.humidity.toString()
+                            findViewById<TextView>(R.id.text_view_pressure).text =
+                                weather.main.pressure.toString()
+                            findViewById<TextView>(R.id.text_view_wind).text =
+                                weather.wind.speed.toString()
+                        }
+
+
                     } else {
                         Toast.makeText(
                             this@MainActivity,
@@ -230,4 +263,13 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
     }
+
+    private fun convertTime(time: Long): String {
+        val date = Date(time * 1000L)
+        val timeFormatted = SimpleDateFormat("HH:mm", Locale.US)
+        timeFormatted.timeZone = TimeZone.getDefault()
+        return timeFormatted.format(date)
+    }
+
+
 }
