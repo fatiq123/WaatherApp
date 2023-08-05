@@ -200,7 +200,6 @@ class MainActivity : AppCompatActivity() {
                 Constants.METRIC_UNIT
             )
 
-
             call.enqueue(object : Callback<weather> {
                 override fun onResponse(call: Call<weather>, response: Response<weather>) {
                     if (response.isSuccessful) {
