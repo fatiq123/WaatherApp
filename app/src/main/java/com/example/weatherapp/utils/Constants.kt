@@ -6,6 +6,10 @@ import android.net.NetworkCapabilities
 import android.os.Build
 
 object Constants {
+
+    const val API_KEY = "860e58bed7b57f387acda7d5a05c2835"
+    const val BASE_URL = "https://api.openweathermap.org/data/"
+
     // Define a function called isNetworkAvailable that takes a Context parameter and returns a boolean value
     fun isNetworkAvailable(context: Context): Boolean {
         // Get an instance of ConnectivityManager using the context parameter

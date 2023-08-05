@@ -22,6 +22,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import retrofit2.Retrofit
 
 
 class MainActivity : AppCompatActivity() {
@@ -176,11 +177,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun getNetworkWeatherDetails() {
         if (Constants.isNetworkAvailable(this)) {
-            Toast.makeText(
-                this,
-                "There is internet connection",
-                Toast.LENGTH_LONG
-            ).show()
+
+            val retrofit = Retrofit.Builder()
+                .baseUrl(Constants.BASE_URL)
+
+
         } else {
             Toast.makeText(
                 this,
