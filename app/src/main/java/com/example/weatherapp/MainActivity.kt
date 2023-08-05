@@ -12,17 +12,25 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.example.weatherapp.service.WeatherServiceApi
 import com.example.weatherapp.utils.Constants
+import com.example.weatherapp.utils.weather
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 
 
 class MainActivity : AppCompatActivity() {
@@ -167,7 +175,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    getNetworkWeatherDetails()
+                    getNetworkWeatherDetails(locationResult.lastLocation?.latitude!!, locationResult.lastLocation?.longitude!!)
                 }
             },
             Looper.myLooper()
@@ -175,11 +183,44 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun getNetworkWeatherDetails() {
+    private fun getNetworkWeatherDetails(latitude: Double, longitude: Double) {
         if (Constants.isNetworkAvailable(this)) {
 
             val retrofit = Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            val serviceApi = retrofit.create(WeatherServiceApi::class.java)
+
+            val call = serviceApi.getWeatherDetails(
+                longitude = longitude,
+                latitude = latitude,
+                Constants.API_KEY,
+                Constants.METRIC_UNIT
+            )
+
+
+            call.enqueue(object : Callback<weather> {
+                override fun onResponse(call: Call<weather>, response: Response<weather>) {
+                    if (response.isSuccessful) {
+                        val weather = response.body()
+                        Log.d("WEATHER", weather.toString())
+                        Toast.makeText(this@MainActivity, "$weather", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Something went wrong.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<weather>, t: Throwable) {
+
+                }
+
+            })
 
 
         } else {
